@@ -61,6 +61,8 @@ public class GameScreen extends ScreenAdapter {
         // create scene manager
         sceneManager = new SceneManager();
         sceneManager.setCamera(camera);
+
+        Gdx.app.setLogLevel(Application.LOG_DEBUG);
     }
 
     @Override
@@ -107,8 +109,9 @@ public class GameScreen extends ScreenAdapter {
 
         // make model batch for instanced rendering
         // (not done via scene manager).
-        modelBatch = new ModelBatch(   Gdx.files.internal("shaders/instanced-rendering.vertex.glsl").readString(),
-                    Gdx.files.internal("shaders/instanced-rendering.fragment.glsl").readString());
+        modelBatch = new ModelBatch( new MyShaderProvider() );
+//        Gdx.files.internal("shaders/instanced-rendering.vertex.glsl").readString(),
+//                    Gdx.files.internal("shaders/instanced-rendering.fragment.glsl").readString());
 
 
         sceneAsset = new GLTFLoader().load(Gdx.files.internal(GLTF_FILE));
@@ -145,44 +148,6 @@ public class GameScreen extends ScreenAdapter {
         ((Buffer)offsets).position(0);
         mesh.setInstanceData(offsets);
     }
-
-
-
-//    private BaseShader createShader() {
-//        return new BaseShader() {
-//
-//            @Override
-//            public void begin(Camera camera, RenderContext context) {
-//                program.bind();
-//                program.setUniformMatrix("u_projViewTrans", camera.combined);
-//                //program.setUniformi("u_texture", 0);
-//                context.setDepthTest(GL30.GL_LEQUAL);
-//            }
-//
-//            @Override
-//            public void init () {
-//                ShaderProgram.prependVertexCode = "#version 300 es\n";
-//                ShaderProgram.prependFragmentCode = "#version 300 es\n";
-//                program = new ShaderProgram(Gdx.files.internal("shaders/instanced-rendering.vert"),
-//                    Gdx.files.internal("shaders/instanced-rendering.frag"));
-//                if (!program.isCompiled()) {
-//                    throw new GdxRuntimeException("Shader compile error: " + program.getLog());
-//                }
-//                init(program, renderable);
-//            }
-//
-//            @Override
-//            public int compareTo (Shader other) {
-//                return 0;
-//            }
-//
-//            @Override
-//            public boolean canRender (Renderable instance) {
-//                return true;
-//            }
-//        };
-//    }
-
 
     @Override
     public void render(float deltaTime) {
