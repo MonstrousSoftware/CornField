@@ -4,6 +4,7 @@ A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://git
 
 A demonstrator of instancing of a gltf model in combination with the PBR shader of gdx-gltf.
 Requires GL3.
+![screenshot](https://github.com/MonstrousSoftware/CornField/assets/49096535/519b91aa-8d01-4252-8cc3-08caddac04c2)
 
 To do: the web version (teavm) has trouble with the texture of some gltf models and renders them black.
 
