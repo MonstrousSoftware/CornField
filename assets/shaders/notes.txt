@@ -8,6 +8,10 @@ Objective is to render instanced models, loaded from gltf files, both on desktop
 The libgdx default shader doesn't work well with gltf models, they render black instead of showing the diffuse texture.
 Or at least on web, on desktop it works fine (why?).
 
+        Perhaps related to this warning: GL_INVALID_OPERATION: Cannot generate mipmaps for a zero-size texture in a WebGL context.
+
+        Even without the instancing the corn stalk model renders black on web.
+
 Alternative: use fbx models.
 
 To use fbx model:
