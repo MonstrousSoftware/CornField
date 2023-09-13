@@ -6,7 +6,9 @@ A demonstrator of instancing of a gltf model in combination with the PBR shader 
 Requires GL3.
 ![screenshot](https://github.com/MonstrousSoftware/CornField/assets/49096535/519b91aa-8d01-4252-8cc3-08caddac04c2)
 
-To do: the web version (teavm) has trouble with the texture of some gltf models and renders them black.
+To do: the web version (teavm) has trouble with the texture of some gltf models and renders them black. 
+What helps is not to use a texture in blender but to define different colours and assign them to the mesh.
+For low poly modeling this might be sufficient.
 
 To do: combine instanced rendering of some assets with regular rendering of other assets, applying the relevant shader as needed.
 
