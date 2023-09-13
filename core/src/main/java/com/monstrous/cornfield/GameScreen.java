@@ -105,7 +105,7 @@ public class GameScreen extends ScreenAdapter {
         // This texture is provided by the library, no need to have it in your assets.
         brdfLUT = new Texture(Gdx.files.classpath("net/mgsx/gltf/shaders/brdfLUT.png"));
 
-        sceneManager.setAmbientLight(0.9f);
+        sceneManager.setAmbientLight(0.3f);
         sceneManager.environment.set(new PBRTextureAttribute(PBRTextureAttribute.BRDFLUTTexture, brdfLUT));
         sceneManager.environment.set(PBRCubemapAttribute.createSpecularEnv(specularCubemap));
         sceneManager.environment.set(PBRCubemapAttribute.createDiffuseEnv(diffuseCubemap));
@@ -132,8 +132,9 @@ public class GameScreen extends ScreenAdapter {
         }
         sceneManager.addScene(scene);
 
-        // assumes the instance has one node, the node has one part and the meshPart covers the whole mesh
-         setupInstancedMesh(scene.modelInstance.nodes.first().parts.first().meshPart.mesh);
+        // assumes the instance has one node,  and the meshPart covers the whole mesh
+        for(int i = 0 ; i < scene.modelInstance.nodes.first().parts.size; i++)
+            setupInstancedMesh(scene.modelInstance.nodes.first().parts.get(i).meshPart.mesh);
     }
 
 
