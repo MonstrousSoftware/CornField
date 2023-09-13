@@ -2,12 +2,12 @@
 
 A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/tommyettinger/gdx-liftoff).
 
-A demonstrator of instancing to render a corn field.
-Uses gdx-gltf to load a gltf model, but the rendering is performed via modelBatch/modelInstance using a special shader.
+A demonstrator of instancing of a gltf model in combination with the PBR shader of gdx-gltf.
+Requires GL3.
 
-To do: the web version (teavm) is more particular than desktop version on having the right #version directive and using modern glsl keywords.
+To do: the web version (teavm) has trouble with the texture of some gltf models and renders them black.
 
-
+To do: combine instanced rendering of some assets with regular rendering of other assets, applying the relevant shader as needed.
 
 ## Platforms
 
