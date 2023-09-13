@@ -3,11 +3,13 @@ package com.monstrous.cornfield;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g3d.*;
+import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.BufferUtils;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.ScreenUtils;
 import net.mgsx.gltf.loaders.gltf.GLTFLoader;
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute;
@@ -47,6 +49,7 @@ public class GameScreen extends ScreenAdapter {
     private DirectionalLightEx light;
     private CameraInputController camController;
     private ModelBatch modelBatch;
+    private ModelInstance instance;
     private Mesh mesh;
 
 
@@ -55,12 +58,13 @@ public class GameScreen extends ScreenAdapter {
         camera = new PerspectiveCamera(50f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.near = 1f;
         camera.far = 300f;
-        camera.position.set(5, 1.5f, -10);
-        camera.lookAt(0,1.5f,0);
+        camera.position.set(-5, 2.5f, -5);
+        camera.lookAt(10,1.5f,10);
+        camera.update();
 
         // create scene manager
-        sceneManager = new SceneManager();
-        sceneManager.setCamera(camera);
+//        sceneManager = new SceneManager();
+//        sceneManager.setCamera(camera);
 
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
     }
@@ -77,34 +81,34 @@ public class GameScreen extends ScreenAdapter {
 
         // gdx-gltf set up
         //
-        sceneManager.environment.set(new PBRFloatAttribute(PBRFloatAttribute.ShadowBias, 0.001f));
-
-        // setup light
-        light = new DirectionalShadowLight(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE).setViewport(100, 100, 5, 400);
-
-        light.direction.set(1, -3, 1).nor();
-        light.color.set(Color.WHITE);
-        light.intensity = 1f;
-        sceneManager.environment.add(light);
-
-        // setup quick IBL (image based lighting)
-        IBLBuilder iblBuilder = IBLBuilder.createOutdoor(light);
-        environmentCubemap = iblBuilder.buildEnvMap(1024);
-        diffuseCubemap = iblBuilder.buildIrradianceMap(256);
-        specularCubemap = iblBuilder.buildRadianceMap(10);
-        iblBuilder.dispose();
-
-        // This texture is provided by the library, no need to have it in your assets.
-        brdfLUT = new Texture(Gdx.files.classpath("net/mgsx/gltf/shaders/brdfLUT.png"));
-
-        sceneManager.setAmbientLight(0.5f);
-        sceneManager.environment.set(new PBRTextureAttribute(PBRTextureAttribute.BRDFLUTTexture, brdfLUT));
-        sceneManager.environment.set(PBRCubemapAttribute.createSpecularEnv(specularCubemap));
-        sceneManager.environment.set(PBRCubemapAttribute.createDiffuseEnv(diffuseCubemap));
-
-        // setup skybox
-        skybox = new SceneSkybox(environmentCubemap);
-        sceneManager.setSkyBox(skybox);
+//        sceneManager.environment.set(new PBRFloatAttribute(PBRFloatAttribute.ShadowBias, 0.001f));
+//
+//        // setup light
+//        light = new DirectionalShadowLight(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE).setViewport(100, 100, 5, 400);
+//
+//        light.direction.set(1, -3, 1).nor();
+//        light.color.set(Color.WHITE);
+//        light.intensity = 1f;
+//        sceneManager.environment.add(light);
+//
+//        // setup quick IBL (image based lighting)
+//        IBLBuilder iblBuilder = IBLBuilder.createOutdoor(light);
+//        environmentCubemap = iblBuilder.buildEnvMap(1024);
+//        diffuseCubemap = iblBuilder.buildIrradianceMap(256);
+//        specularCubemap = iblBuilder.buildRadianceMap(10);
+//        iblBuilder.dispose();
+//
+//        // This texture is provided by the library, no need to have it in your assets.
+//        brdfLUT = new Texture(Gdx.files.classpath("net/mgsx/gltf/shaders/brdfLUT.png"));
+//
+//        sceneManager.setAmbientLight(0.5f);
+//        sceneManager.environment.set(new PBRTextureAttribute(PBRTextureAttribute.BRDFLUTTexture, brdfLUT));
+//        sceneManager.environment.set(PBRCubemapAttribute.createSpecularEnv(specularCubemap));
+//        sceneManager.environment.set(PBRCubemapAttribute.createDiffuseEnv(diffuseCubemap));
+//
+//        // setup skybox
+//        skybox = new SceneSkybox(environmentCubemap);
+//        sceneManager.setSkyBox(skybox);
 
 
         // make model batch for instanced rendering
@@ -114,13 +118,17 @@ public class GameScreen extends ScreenAdapter {
 //                    Gdx.files.internal("shaders/instanced-rendering.fragment.glsl").readString());
 
 
-        sceneAsset = new GLTFLoader().load(Gdx.files.internal(GLTF_FILE));
-
-        // extract the model to instance
-        scene = new Scene(sceneAsset.scene, NODE_NAME);
+//        sceneAsset = new GLTFLoader().load(Gdx.files.internal(GLTF_FILE));
+//
+//        // extract the model to instance
+//        scene = new Scene(sceneAsset.scene, NODE_NAME);
         // we will handle this model outside of scene manager
+        //sceneManager.addScene(scene);
 
-        setupInstancedMesh(scene.modelInstance.model);
+        Model model = new G3dModelLoader(new JsonReader()).loadModel(Gdx.files.internal("models/corn.g3dj"));
+        instance = new ModelInstance(model);
+
+        setupInstancedMesh(instance.model);
 
     }
 
@@ -154,22 +162,22 @@ public class GameScreen extends ScreenAdapter {
 
         camController.update();
 
-        sceneManager.update(deltaTime);
+//        sceneManager.update(deltaTime);
 
 
         ScreenUtils.clear(Color.TEAL, true);
-        sceneManager.render();
+//        sceneManager.render();
 
         // now render instanced model using plain old model batch
         modelBatch.begin(camera);
-        modelBatch.render(scene.modelInstance, sceneManager.environment);
+        modelBatch.render(instance);
         modelBatch.end();
     }
 
     @Override
     public void resize(int width, int height) {
         // Resize your screen here. The parameters represent the new window size.
-        sceneManager.updateViewport(width, height);
+        //sceneManager.updateViewport(width, height);
     }
 
 
@@ -182,13 +190,13 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void dispose() {
 
-        sceneManager.dispose();
-        sceneAsset.dispose();
-        environmentCubemap.dispose();
-        diffuseCubemap.dispose();
-        specularCubemap.dispose();
-        brdfLUT.dispose();
-        skybox.dispose();
+//        sceneManager.dispose();
+//        sceneAsset.dispose();
+//        environmentCubemap.dispose();
+//        diffuseCubemap.dispose();
+//        specularCubemap.dispose();
+//        brdfLUT.dispose();
+//        skybox.dispose();
         modelBatch.dispose();
     }
 }

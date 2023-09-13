@@ -1,0 +1,18 @@
+Objective is to render instanced models, loaded from gltf files, both on desktop (lwgl3) and on web (teamvm).
+
+
+
+13/9/2023:
+
+
+The libgdx default shader doesn't work well with gltf models, they render black instead of showing the diffuse texture.
+Or at least on web, on desktop it works fine (why?).
+
+Alternative: use fbx models.
+
+To use fbx model:
+
+- In Blender lie the model along the positive Y axis (r x -90) and apply rotations.
+- FBX export with scale 100 and Up: Z up to file corn.fbx
+- Then from commandline: fbx-conv -f -o gd3dj corn.fbx
+

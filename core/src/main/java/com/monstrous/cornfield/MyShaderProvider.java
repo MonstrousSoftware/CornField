@@ -8,13 +8,16 @@ import com.badlogic.gdx.graphics.g3d.utils.ShaderProvider;
 
 
 public class MyShaderProvider implements ShaderProvider {
+
+    public static final String SHADER_NAME = "instanced-rendering";
+
     @Override
     public Shader getShader(Renderable renderable) {
 
         String versionDirective = "#version 300 es\n";
 
-        DefaultShader.Config config = new DefaultShader.Config(Gdx.files.internal("shaders/instanced-rendering.vertex.glsl").readString(),
-            Gdx.files.internal("shaders/instanced-rendering.fragment.glsl").readString());
+        DefaultShader.Config config = new DefaultShader.Config(Gdx.files.internal("shaders/"+SHADER_NAME+".vertex.glsl").readString(),
+            Gdx.files.internal("shaders/"+SHADER_NAME+".fragment.glsl").readString());
         config.numBones = 0;
         config.numDirectionalLights = 1;
         config.numSpotLights = 0;
