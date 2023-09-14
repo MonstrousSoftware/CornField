@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.BufferUtils;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -31,6 +32,7 @@ import net.mgsx.gltf.scene3d.utils.IBLBuilder;
 
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
+import java.util.Comparator;
 
 
 public class Main extends ApplicationAdapter {
@@ -39,7 +41,7 @@ public class Main extends ApplicationAdapter {
     public static String NODE_NAME = "cornstalk";                   // "cornstalk"  "reeds"
 
     private static final float SEPARATION_DISTANCE = 1.0f;          // min distance between instances
-    private static final float AREA_LENGTH = 250.0f;                // size of the (square) field
+    private static final float AREA_LENGTH = 100.0f;                // size of the (square) field
 
     private static final int SHADOW_MAP_SIZE = 2048;
 
@@ -58,6 +60,9 @@ public class Main extends ApplicationAdapter {
     private BitmapFont font;
     private SpriteBatch batch;
     private int instanceCount;
+    private Texture billboard;
+    private Array<BillBoardData> billboardPositions;
+    private Array<BillBoardData> visibleBillboards;
 
     @Override
     public void create() {
@@ -68,12 +73,13 @@ public class Main extends ApplicationAdapter {
         font = new BitmapFont();
         batch = new SpriteBatch();
 
+        billboard = new Texture(Gdx.files.internal("images/cornstalk-billboard.png") );
 
 
         // setup camera
         camera = new PerspectiveCamera(50f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.near = 0.1f;
-        camera.far = 200f;
+        camera.far = 2000f;
         camera.position.set(-5, 2.5f, -5);
         camera.lookAt(10,1.5f,10);
         camera.update();
@@ -136,14 +142,16 @@ public class Main extends ApplicationAdapter {
             Gdx.app.error("GLTF load error: node not found", NODE_NAME);
             Gdx.app.exit();
         }
-
+        sceneManager.addScene(scene);
 
         // assumes the instance has one node,  and the meshPart covers the whole mesh
         for(int i = 0 ; i < scene.modelInstance.nodes.first().parts.size; i++) {
             Mesh mesh = scene.modelInstance.nodes.first().parts.get(i).meshPart.mesh;
             setupInstancedMesh(mesh);
         }
-        sceneManager.addScene(scene);
+
+        generateBillBoardPositions();
+
     }
 
 
@@ -179,10 +187,84 @@ public class Main extends ApplicationAdapter {
         mesh.setInstanceData(offsets);
     }
 
+    static class BillBoardData {
+        float x;
+        float z;
+        boolean inView;
+        Vector3 worldPosition;
+        Vector3 screenPosition;
+        float randomScale;
+        float distance;
+        float scale;
+    }
+
+    static class BillBoardComparator<BillBoardData> {
+
+    }
+
+    private void generateBillBoardPositions() {
+
+        // generate instance data
+
+        // generate a random poisson distribution of instances over a rectangular area, meaning instances are never too close together
+        PoissonDistribution poisson = new PoissonDistribution();
+        Rectangle area = new Rectangle(-AREA_LENGTH, -AREA_LENGTH, AREA_LENGTH, AREA_LENGTH);
+        Array<Vector2> points = poisson.generatePoissonDistribution(SEPARATION_DISTANCE, area);
+
+        billboardPositions = new Array<>();
+        visibleBillboards = new Array<>();
+        for(Vector2 point: points ) {
+            BillBoardData datum = new BillBoardData();
+            datum.x = point.x;
+            datum.z = point.y;
+            datum.worldPosition = new Vector3(point.x, 0, point.y);   // map to 3d space
+            datum.screenPosition = new Vector3();
+            datum.randomScale = 1f; //0.8f + 0.4f*(float)(Math.sin(point.x * 3.13 + point.y * 5.145)); // size of this particular instance
+            billboardPositions.add(datum);
+        }
+    }
+
+    private void updateBillBoardPosition( Camera cam ){
+        Vector3 pos = new Vector3();
+        visibleBillboards.clear();
+        for(BillBoardData datum: billboardPositions) {            // todo need to sort by distance to camera and render back to front
+            datum.inView = cam.frustum.pointInFrustum(datum.worldPosition);
+            if(!datum.inView)
+                continue;
+            datum.distance = datum.worldPosition.dst(camera.position);
+            datum.scale = datum.randomScale * 6f / datum.distance;
+            datum.screenPosition.set(datum.worldPosition);
+            cam.project(datum.screenPosition);
+            visibleBillboards.add(datum);
+        }
+
+        Comparator<BillBoardData> comparator = new Comparator<>() {
+            public int compare (BillBoardData o1, BillBoardData o2) {
+
+                return (int) (100f*(o2.distance - o1.distance));
+            }
+        };
+        // sort by distance to camera to render back to front
+        visibleBillboards.sort(comparator);
+    }
+
+    private void renderBillboards(Camera cam) {
+
+        batch.begin();
+
+        for(BillBoardData datum: visibleBillboards) {
+            if(!datum.inView)
+                continue;
+            batch.draw(billboard, datum.screenPosition.x,  datum.screenPosition.y, datum.scale * billboard.getWidth(), datum.scale * billboard.getHeight());
+        }
+        batch.end();
+    }
+
     @Override
     public void render() {
 
         camController.update();
+        updateBillBoardPosition(camera);
 
         sceneManager.update(Gdx.graphics.getDeltaTime());
 
@@ -190,13 +272,21 @@ public class Main extends ApplicationAdapter {
         sceneManager.render();
 
 
-        int fps = (int)(1f/Gdx.graphics.getDeltaTime());
 
+
+
+
+        renderBillboards(sceneManager.camera);
+
+
+        int fps = (int)(1f/Gdx.graphics.getDeltaTime());
         batch.begin();
         font.draw(batch, "Instanced rendering demo", 20, 110);
         font.draw(batch, "Instances: "+instanceCount, 20, 80);
         font.draw(batch, "Vertices/instance: "+countVertices(scene.modelInstance), 20, 50);
         font.draw(batch, "FPS: "+fps, 20, 20);
+
+        //batch.draw(billboard, 100,100);
         batch.end();
     }
 
