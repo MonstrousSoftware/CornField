@@ -8,6 +8,9 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.shaders.DepthShader;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.BufferUtils;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -33,12 +36,13 @@ import java.nio.FloatBuffer;
 public class Main extends ApplicationAdapter {
 
     public static String GLTF_FILE = "models/corn.gltf";
-    public static String NODE_NAME = "reeds";                   // "cornstalk"  "reeds"
+    public static String NODE_NAME = "cornstalk";                   // "cornstalk"  "reeds"
 
+    private static final float SEPARATION_DISTANCE = 1.0f;          // min distance between instances
+    private static final float AREA_LENGTH = 250.0f;                // size of the (square) field
 
     private static final int SHADOW_MAP_SIZE = 2048;
-    private final static int INSTANCE_COUNT_SQRT = 100;
-    private final static int INSTANCE_COUNT = INSTANCE_COUNT_SQRT * INSTANCE_COUNT_SQRT;
+
 
     private SceneManager sceneManager;
     private SceneAsset sceneAsset;
@@ -53,7 +57,7 @@ public class Main extends ApplicationAdapter {
     private CameraInputController camController;
     private BitmapFont font;
     private SpriteBatch batch;
-
+    private int instanceCount;
 
     @Override
     public void create() {
@@ -63,6 +67,8 @@ public class Main extends ApplicationAdapter {
         }
         font = new BitmapFont();
         batch = new SpriteBatch();
+
+
 
         // setup camera
         camera = new PerspectiveCamera(50f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -143,23 +149,32 @@ public class Main extends ApplicationAdapter {
 
     private void setupInstancedMesh( Mesh mesh ) {
 
+        // generate instance data
+
+        // generate a random poisson distribution of instances over a rectangular area, meaning instances are never too close together
+        PoissonDistribution poisson = new PoissonDistribution();
+        Rectangle area = new Rectangle(1, 1, AREA_LENGTH, AREA_LENGTH);
+        Array<Vector2> points = poisson.generatePoissonDistribution(SEPARATION_DISTANCE, area);
+        instanceCount = points.size;
+
         // add 4 floats per instance
-        mesh.enableInstancedRendering(true, INSTANCE_COUNT, new VertexAttribute(VertexAttributes.Usage.Position, 4, "i_offset")  );
+        mesh.enableInstancedRendering(true, instanceCount, new VertexAttribute(VertexAttributes.Usage.Position, 4, "i_offset")  );
 
         // Create offset FloatBuffer that will contain instance data to pass to shader
-        FloatBuffer offsets = BufferUtils.newFloatBuffer(INSTANCE_COUNT * 4);
+        FloatBuffer offsets = BufferUtils.newFloatBuffer(instanceCount * 4);
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
         Gdx.app.log("FloatBuffer: isDirect()",  "" + offsets.isDirect());  // false = teaVM for now
         Gdx.app.log("Application: Type()",  "" + Gdx.app.getType());
 
-        // fill instance data
-        for (int x = 1; x <= INSTANCE_COUNT_SQRT; x++) {
-            for (int y = 1; y <= INSTANCE_COUNT_SQRT; y++) {
+        // fill instance data buffer
+        for(Vector2 point: points) {
                 float angle = MathUtils.random(0.0f, (float)Math.PI*2.0f);
-                float fy = MathUtils.random(-0.6f, 0.0f);        // vary height
-                offsets.put(new float[] {50f *x / (INSTANCE_COUNT_SQRT * 0.5f) - 1f, fy, 50f*y / (INSTANCE_COUNT_SQRT * 0.5f) - 1f, angle });     // x, y, z, angle
-            }
+                float fy = MathUtils.random(-0.6f, 0.0f);        // vary height from ground
+                float scaley = MathUtils.random(0.8f, 1.2f);        // vary scale in up direction
+
+                offsets.put(new float[] {point.x, scaley, point.y, angle });     // x, y scale, z, angle
         }
+
         ((Buffer)offsets).position(0);
         mesh.setInstanceData(offsets);
     }
@@ -179,7 +194,7 @@ public class Main extends ApplicationAdapter {
 
         batch.begin();
         font.draw(batch, "Instanced rendering demo", 20, 110);
-        font.draw(batch, "Instances: "+INSTANCE_COUNT, 20, 80);
+        font.draw(batch, "Instances: "+instanceCount, 20, 80);
         font.draw(batch, "Vertices/instance: "+countVertices(scene.modelInstance), 20, 50);
         font.draw(batch, "FPS: "+fps, 20, 20);
         batch.end();

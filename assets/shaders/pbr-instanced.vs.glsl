@@ -232,7 +232,7 @@ varying vec3 v_csmUVs[numCSM];
 #endif //shadowMapFlag
 
 // MS
-attribute vec4 i_offset;       // instanced data (X, Y, Z, rotation angle around Y)
+attribute vec4 i_offset;       // instanced data (X, scale Y, Z, rotation angle around Y)
 
 
 // MS
@@ -323,7 +323,8 @@ void main() {
 
     // MS
     pos.xz = rotate(i_offset.w)*pos.xz;                 // rotate around Y axis
-    pos += vec4(i_offset.x, i_offset.y, i_offset.z, 0.0);      // offset in horizontal plane
+    pos.y *= i_offset.y;                                // scale in Y direction
+    pos += vec4(i_offset.x, 0, i_offset.z, 0.0);      // offset in horizontal plane
     // end MS
 
     v_position = vec3(pos.xyz) / pos.w;

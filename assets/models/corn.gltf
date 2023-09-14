@@ -42,103 +42,20 @@
 			"mesh":2,
 			"name":"cornstalk",
 			"rotation":[
-				0,
-				-0.8276183009147644,
-				0,
-				0.5612913370132446
+				-0.18523387610912323,
+				-0.7958952784538269,
+				0.029125647619366646,
+				0.5756655931472778
+			],
+			"scale":[
+				0.060721129179000854,
+				0.06072112172842026,
+				0.06072112172842026
 			],
 			"translation":[
-				0,
-				0.9245599508285522,
-				0
-			]
-		}
-	],
-	"animations":[
-		{
-			"channels":[
-				{
-					"sampler":0,
-					"target":{
-						"node":0,
-						"path":"translation"
-					}
-				},
-				{
-					"sampler":1,
-					"target":{
-						"node":0,
-						"path":"rotation"
-					}
-				},
-				{
-					"sampler":2,
-					"target":{
-						"node":0,
-						"path":"scale"
-					}
-				}
-			],
-			"name":"reeds",
-			"samplers":[
-				{
-					"input":16,
-					"interpolation":"LINEAR",
-					"output":17
-				},
-				{
-					"input":16,
-					"interpolation":"LINEAR",
-					"output":18
-				},
-				{
-					"input":16,
-					"interpolation":"LINEAR",
-					"output":19
-				}
-			]
-		},
-		{
-			"channels":[
-				{
-					"sampler":0,
-					"target":{
-						"node":1,
-						"path":"translation"
-					}
-				},
-				{
-					"sampler":1,
-					"target":{
-						"node":1,
-						"path":"rotation"
-					}
-				},
-				{
-					"sampler":2,
-					"target":{
-						"node":1,
-						"path":"scale"
-					}
-				}
-			],
-			"name":"groundplane",
-			"samplers":[
-				{
-					"input":16,
-					"interpolation":"LINEAR",
-					"output":20
-				},
-				{
-					"input":16,
-					"interpolation":"LINEAR",
-					"output":21
-				},
-				{
-					"input":16,
-					"interpolation":"LINEAR",
-					"output":22
-				}
+				0.025153830647468567,
+				2.493030071258545,
+				-0.028917748481035233
 			]
 		}
 	],
@@ -162,8 +79,8 @@
 				"baseColorTexture":{
 					"index":0
 				},
-				"metallicFactor":0,
-				"roughnessFactor":0
+				"metallicFactor":0.06735754013061523,
+				"roughnessFactor":0.30051812529563904
 			}
 		},
 		{
@@ -186,46 +103,6 @@
 					0.18446944653987885,
 					0.05302741006016731,
 					0.007473601493984461,
-					1
-				],
-				"metallicFactor":0,
-				"roughnessFactor":0.5
-			}
-		},
-		{
-			"doubleSided":true,
-			"name":"stalk",
-			"pbrMetallicRoughness":{
-				"baseColorFactor":[
-					0.022539179772138596,
-					0.137583926320076,
-					0.011214639991521835,
-					1
-				],
-				"metallicFactor":0,
-				"roughnessFactor":0.5
-			}
-		},
-		{
-			"doubleSided":true,
-			"extensions":{
-				"KHR_materials_specular":{
-					"specularColorFactor":[
-						1.4989929247371179,
-						1.4989929247371179,
-						1.4989929247371179
-					]
-				},
-				"KHR_materials_ior":{
-					"ior":1.4500000476837158
-				}
-			},
-			"name":"corncob",
-			"pbrMetallicRoughness":{
-				"baseColorFactor":[
-					0.8549789190292358,
-					0.5795806050300598,
-					0.07751891016960144,
 					1
 				],
 				"metallicFactor":0,
@@ -263,7 +140,7 @@
 			]
 		},
 		{
-			"name":"cornstalkMesh.003",
+			"name":"Sphere",
 			"primitives":[
 				{
 					"attributes":{
@@ -272,16 +149,7 @@
 						"NORMAL":10
 					},
 					"indices":11,
-					"material":2
-				},
-				{
-					"attributes":{
-						"POSITION":12,
-						"TEXCOORD_0":13,
-						"NORMAL":14
-					},
-					"indices":15,
-					"material":3
+					"material":0
 				}
 			]
 		}
@@ -371,118 +239,36 @@
 		{
 			"bufferView":8,
 			"componentType":5126,
-			"count":273,
+			"count":890,
 			"max":[
-				0.4420807659626007,
-				2.083876609802246,
-				0.5190955996513367
+				5.812478065490723,
+				8.015279769897461,
+				7.187520980834961
 			],
 			"min":[
-				-0.42932945489883423,
-				-0.9164341688156128,
-				-0.4459751844406128
+				-13.42171573638916,
+				-38.50127410888672,
+				-10.910640716552734
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":9,
 			"componentType":5126,
-			"count":273,
+			"count":890,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":10,
 			"componentType":5126,
-			"count":273,
+			"count":890,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":11,
 			"componentType":5123,
-			"count":1380,
+			"count":2532,
 			"type":"SCALAR"
-		},
-		{
-			"bufferView":12,
-			"componentType":5126,
-			"count":3884,
-			"max":[
-				0.03661616891622543,
-				1.8785935640335083,
-				0.1799561232328415
-			],
-			"min":[
-				-0.15770214796066284,
-				0.6342912912368774,
-				-0.12392127513885498
-			],
-			"type":"VEC3"
-		},
-		{
-			"bufferView":13,
-			"componentType":5126,
-			"count":3884,
-			"type":"VEC2"
-		},
-		{
-			"bufferView":14,
-			"componentType":5126,
-			"count":3884,
-			"type":"VEC3"
-		},
-		{
-			"bufferView":15,
-			"componentType":5123,
-			"count":23280,
-			"type":"SCALAR"
-		},
-		{
-			"bufferView":16,
-			"componentType":5126,
-			"count":2,
-			"max":[
-				0.08333333333333333
-			],
-			"min":[
-				0.041666666666666664
-			],
-			"type":"SCALAR"
-		},
-		{
-			"bufferView":17,
-			"componentType":5126,
-			"count":2,
-			"type":"VEC3"
-		},
-		{
-			"bufferView":18,
-			"componentType":5126,
-			"count":2,
-			"type":"VEC4"
-		},
-		{
-			"bufferView":19,
-			"componentType":5126,
-			"count":2,
-			"type":"VEC3"
-		},
-		{
-			"bufferView":20,
-			"componentType":5126,
-			"count":2,
-			"type":"VEC3"
-		},
-		{
-			"bufferView":21,
-			"componentType":5126,
-			"count":2,
-			"type":"VEC4"
-		},
-		{
-			"bufferView":22,
-			"componentType":5126,
-			"count":2,
-			"type":"VEC3"
 		}
 	],
 	"bufferViews":[
@@ -536,86 +322,27 @@
 		},
 		{
 			"buffer":0,
-			"byteLength":3276,
+			"byteLength":10680,
 			"byteOffset":40824,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":2184,
-			"byteOffset":44100,
+			"byteLength":7120,
+			"byteOffset":51504,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":3276,
-			"byteOffset":46284,
+			"byteLength":10680,
+			"byteOffset":58624,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":2760,
-			"byteOffset":49560,
+			"byteLength":5064,
+			"byteOffset":69304,
 			"target":34963
-		},
-		{
-			"buffer":0,
-			"byteLength":46608,
-			"byteOffset":52320,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":31072,
-			"byteOffset":98928,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":46608,
-			"byteOffset":130000,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":46560,
-			"byteOffset":176608,
-			"target":34963
-		},
-		{
-			"buffer":0,
-			"byteLength":8,
-			"byteOffset":223168
-		},
-		{
-			"buffer":0,
-			"byteLength":24,
-			"byteOffset":223176
-		},
-		{
-			"buffer":0,
-			"byteLength":32,
-			"byteOffset":223200
-		},
-		{
-			"buffer":0,
-			"byteLength":24,
-			"byteOffset":223232
-		},
-		{
-			"buffer":0,
-			"byteLength":24,
-			"byteOffset":223256
-		},
-		{
-			"buffer":0,
-			"byteLength":32,
-			"byteOffset":223280
-		},
-		{
-			"buffer":0,
-			"byteLength":24,
-			"byteOffset":223312
 		}
 	],
 	"samplers":[
@@ -626,7 +353,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":223336,
+			"byteLength":74368,
 			"uri":"corn.bin"
 		}
 	]
