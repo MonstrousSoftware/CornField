@@ -33,7 +33,7 @@ import java.nio.FloatBuffer;
 public class Main extends ApplicationAdapter {
 
     public static String GLTF_FILE = "models/corn.gltf";
-    public static String NODE_NAME = "cornstalk";                   // "cornstalk"  "reeds"
+    public static String NODE_NAME = "reeds";                   // "cornstalk"  "reeds"
 
 
     private static final int SHADOW_MAP_SIZE = 2048;
@@ -178,7 +178,7 @@ public class Main extends ApplicationAdapter {
         int fps = (int)(1f/Gdx.graphics.getDeltaTime());
 
         batch.begin();
-        font.draw(batch, "Instanced rendering demo", 20, 120);
+        font.draw(batch, "Instanced rendering demo", 20, 110);
         font.draw(batch, "Instances: "+INSTANCE_COUNT, 20, 80);
         font.draw(batch, "Vertices/instance: "+countVertices(scene.modelInstance), 20, 50);
         font.draw(batch, "FPS: "+fps, 20, 20);
