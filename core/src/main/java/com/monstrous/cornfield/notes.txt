@@ -6,3 +6,5 @@ When exporting gltf from Blender use GLTF Separate.  You will get a .gltf file a
 GLTF Embedded works on desktop but not on web.
 
 
+Note:
+- using a pallette may be preferable to giving parts of the mesh different fixed colours, because the latter options creates a mesh per material and a texture switch.

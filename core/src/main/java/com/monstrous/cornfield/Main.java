@@ -4,6 +4,7 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.shaders.DepthShader;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.math.MathUtils;
@@ -32,7 +33,7 @@ import java.nio.FloatBuffer;
 public class Main extends ApplicationAdapter {
 
     public static String GLTF_FILE = "models/corn.gltf";
-    public static String NODE_NAME = "cornstalk";                   // "reeds"
+    public static String NODE_NAME = "cornstalk";                   // "cornstalk"  "reeds"
 
 
     private static final int SHADOW_MAP_SIZE = 2048;
@@ -177,10 +178,19 @@ public class Main extends ApplicationAdapter {
         int fps = (int)(1f/Gdx.graphics.getDeltaTime());
 
         batch.begin();
-        font.draw(batch, "Instanced rendering demo", 20, 80);
-        font.draw(batch, "Instances: "+INSTANCE_COUNT, 20, 50);
+        font.draw(batch, "Instanced rendering demo", 20, 120);
+        font.draw(batch, "Instances: "+INSTANCE_COUNT, 20, 80);
+        font.draw(batch, "Vertices/instance: "+countVertices(scene.modelInstance), 20, 50);
         font.draw(batch, "FPS: "+fps, 20, 20);
         batch.end();
+    }
+
+    private int countVertices(ModelInstance instance){
+        int count = 0;
+        for(int i = 0; i < instance.nodes.first().parts.size; i++){
+            count += instance.nodes.first().parts.get(i).meshPart.mesh.getNumVertices();
+        }
+        return count;
     }
 
     @Override
