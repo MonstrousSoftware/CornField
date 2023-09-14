@@ -1,10 +1,8 @@
 Objective is to render instanced models, loaded from gltf files, both on desktop (lwgl3) and on web (teamvm).
 
 
-13/9/2023:
-
-Some gltf models appear without texture (in black) in the web version, while they render fine on desktop.
-
-        Perhaps related to this warning: GL_INVALID_OPERATION: Cannot generate mipmaps for a zero-size texture in a WebGL context.
+IMPORTANT:
+When exporting gltf from Blender use GLTF Separate.  You will get a .gltf file a .bin file and possibly some texture files.
+GLTF Embedded works on desktop but not on web.
 
 
