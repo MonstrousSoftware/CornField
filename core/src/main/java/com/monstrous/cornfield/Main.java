@@ -90,6 +90,9 @@ public class Main extends ApplicationAdapter {
         config.vertexShader = Gdx.files.internal("shaders/pbr-instanced.vs.glsl").readString();
         //config.glslVersion = "#version 300 es\n#define GLSL3\n";
         sceneManager = new SceneManager( new PBRShaderProvider(config), new PBRDepthShaderProvider(new DepthShader.Config()) );
+
+       // sceneManager = new SceneManager();
+
         sceneManager.setCamera(camera);
 
         camController = new CameraInputController(camera);
@@ -198,9 +201,6 @@ public class Main extends ApplicationAdapter {
         float scale;
     }
 
-    static class BillBoardComparator<BillBoardData> {
-
-    }
 
     private void generateBillBoardPositions() {
 
@@ -271,12 +271,7 @@ public class Main extends ApplicationAdapter {
         ScreenUtils.clear(Color.TEAL, true);
         sceneManager.render();
 
-
-
-
-
-
-        renderBillboards(sceneManager.camera);
+       renderBillboards(sceneManager.camera);
 
 
         int fps = (int)(1f/Gdx.graphics.getDeltaTime());
