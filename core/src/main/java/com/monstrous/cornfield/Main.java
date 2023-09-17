@@ -34,9 +34,10 @@ import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
 import net.mgsx.gltf.scene3d.utils.IBLBuilder;
 
+
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
-import java.util.Comparator;
+
 
 
 public class Main extends ApplicationAdapter {
@@ -72,11 +73,16 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void create() {
+
+
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
         if (Gdx.gl30 == null) {
             throw new GdxRuntimeException("GLES 3.0 profile required for this programme.");
         }
         font = new BitmapFont();
+        Gdx.app.log("font own texture", ""+font.ownsTexture());
+        font.setOwnsTexture(false);
+        Gdx.app.log("font own texture", ""+font.ownsTexture());
         batch = new SpriteBatch();
 
         billboard = new Texture(Gdx.files.internal("images/cornstalk-billboard.png") );

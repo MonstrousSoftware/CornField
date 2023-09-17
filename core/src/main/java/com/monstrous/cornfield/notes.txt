@@ -14,6 +14,23 @@ On lwgl3 we need OpenGL3.1, 3.0 gives error depending on drivers...
     FATAL ERROR in native method: Thread[main,5,main]: No context is current or a function that is not available in the current context was called. The JVM will abort execution.
         at org.lwjgl.opengl.GL31C.nglDrawElementsInstanced(Native Method)
 
+
+
+Perhaps this has to do with the following code in
+libgdx/backends/gdx-backend-lwjgl3/src/com/badlogic/gdx/backends/lwjgl3/Lwjgl3GL30.java
+	@Override
+	public void glDrawArraysInstanced (int mode, int first, int count, int instanceCount) {
+		GL31.glDrawArraysInstanced(mode, first, count, instanceCount);
+	}
+
+it seems like 3.0 code is relying on 3.1 functions?
+No, glDrawArraysInstanced was introduced in GLES 3.0 but in OpenGL only since 3.1
+Full compatibility with GLES 3.0 requires OpenGL 4.3
+So for GLES3.0 compatibility we should call:
+
+        configuration.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.GL30, 4,3); // use OpenGL4.3 to emulate GLES3.0
+
+
 Actually we need OpenGL 3.3 otherwise you get this:
 FATAL ERROR in native method: Thread[main,5,main]: No context is current or a function that is not available in the current context was called. The JVM will abort execution.
 	at org.lwjgl.opengl.GL33C.glVertexAttribDivisor(Native Method)
@@ -26,7 +43,10 @@ FATAL ERROR in native method: Thread[main,5,main]: No context is current or a fu
 [LWJGL] GLFW_INVALID_VALUE error
 	Description : Invalid OpenGL version 3.4
 
-Now runs but with error and bitmap font is corrupted (all black).
+Now runs but with error and bitmap font is corrupted (all black).  This occurs when GL is set to 3.2 (known problem).
+FIXED in 1.12.1-SNAPSHOT (on 18/9/2023)
+
+But also: on Intel UHD 630
 
 LWJGL] GLFW_PLATFORM_ERROR error
 	Description : WGL: Failed to make context current: The requested transformation operation is not supported.
