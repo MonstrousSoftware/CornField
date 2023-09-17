@@ -4,7 +4,11 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy;
+import com.badlogic.gdx.graphics.g3d.decals.Decal;
+import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.graphics.g3d.shaders.DepthShader;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.math.MathUtils;
@@ -61,8 +65,10 @@ public class Main extends ApplicationAdapter {
     private SpriteBatch batch;
     private int instanceCount;
     private Texture billboard;
-    private Array<BillBoardData> billboardPositions;
-    private Array<BillBoardData> visibleBillboards;
+    private Array<Decal>decals;
+    private DecalBatch decalBatch;
+    private boolean showInstances = true;
+    private boolean showDecals = true;
 
     @Override
     public void create() {
@@ -128,12 +134,12 @@ public class Main extends ApplicationAdapter {
 
         sceneAsset = new GLTFLoader().load(Gdx.files.internal(GLTF_FILE));
 
-        Scene sceneGround = new Scene(sceneAsset.scene, "groundplane");
-        if(sceneGround.modelInstance.nodes.size == 0) {
-            Gdx.app.error("GLTF load error: node not found", "groundplane");
-            Gdx.app.exit();
-        }
-       // sceneManager.addScene(sceneGround);
+//        Scene sceneGround = new Scene(sceneAsset.scene, "groundplane");
+//        if(sceneGround.modelInstance.nodes.size == 0) {
+//            Gdx.app.error("GLTF load error: node not found", "groundplane");
+//            Gdx.app.exit();
+//        }
+//        sceneManager.addScene(sceneGround);
 
 
         // extract the model to instantiate
@@ -150,7 +156,11 @@ public class Main extends ApplicationAdapter {
             setupInstancedMesh(mesh);
         }
 
-        generateBillBoardPositions();
+
+        decals = new Array<>();
+        decalBatch = new DecalBatch(new CameraGroupStrategy(camera));
+        generateDecals();
+
 
     }
 
@@ -187,22 +197,9 @@ public class Main extends ApplicationAdapter {
         mesh.setInstanceData(offsets);
     }
 
-    static class BillBoardData {
-        float x;
-        float z;
-        boolean inView;
-        Vector3 worldPosition;
-        Vector3 screenPosition;
-        float randomScale;
-        float distance;
-        float scale;
-    }
 
-    static class BillBoardComparator<BillBoardData> {
 
-    }
-
-    private void generateBillBoardPositions() {
+    private void generateDecals() {
 
         // generate instance data
 
@@ -211,77 +208,54 @@ public class Main extends ApplicationAdapter {
         Rectangle area = new Rectangle(-AREA_LENGTH, -AREA_LENGTH, AREA_LENGTH, AREA_LENGTH);
         Array<Vector2> points = poisson.generatePoissonDistribution(SEPARATION_DISTANCE, area);
 
-        billboardPositions = new Array<>();
-        visibleBillboards = new Array<>();
+        TextureRegion region = new TextureRegion(billboard);
+
+        float ht = 3.0f;
+
         for(Vector2 point: points ) {
-            BillBoardData datum = new BillBoardData();
-            datum.x = point.x;
-            datum.z = point.y;
-            datum.worldPosition = new Vector3(point.x, 0, point.y);   // map to 3d space
-            datum.screenPosition = new Vector3();
-            datum.randomScale = 1f; //0.8f + 0.4f*(float)(Math.sin(point.x * 3.13 + point.y * 5.145)); // size of this particular instance
-            billboardPositions.add(datum);
+            Decal decal = Decal.newDecal(1, ht, region, true);
+            decal.setPosition(point.x, ht/2f, point.y);
+            decals.add(decal);
         }
     }
 
-    private void updateBillBoardPosition( Camera cam ){
-        Vector3 pos = new Vector3();
-        visibleBillboards.clear();
-        for(BillBoardData datum: billboardPositions) {            // todo need to sort by distance to camera and render back to front
-            datum.inView = cam.frustum.pointInFrustum(datum.worldPosition);
-            if(!datum.inView)
-                continue;
-            datum.distance = datum.worldPosition.dst(camera.position);
-            datum.scale = datum.randomScale * 6f / datum.distance;
-            datum.screenPosition.set(datum.worldPosition);
-            cam.project(datum.screenPosition);
-            visibleBillboards.add(datum);
+    private void renderDecals(Camera camera) {
+        for(Decal decal: decals ) {
+            decal.lookAt(camera.position, Vector3.Y);
+            decalBatch.add(decal);
         }
-
-        Comparator<BillBoardData> comparator = new Comparator<>() {
-            public int compare (BillBoardData o1, BillBoardData o2) {
-
-                return (int) (100f*(o2.distance - o1.distance));
-            }
-        };
-        // sort by distance to camera to render back to front
-        visibleBillboards.sort(comparator);
+        decalBatch.flush();
     }
 
-    private void renderBillboards(Camera cam) {
-
-        batch.begin();
-
-        for(BillBoardData datum: visibleBillboards) {
-            if(!datum.inView)
-                continue;
-            batch.draw(billboard, datum.screenPosition.x,  datum.screenPosition.y, datum.scale * billboard.getWidth(), datum.scale * billboard.getHeight());
-        }
-        batch.end();
-    }
 
     @Override
     public void render() {
+        if(Gdx.input.isKeyJustPressed(Input.Keys.F1)){
+            showInstances = !showInstances;
+            if(!showInstances)
+                sceneManager.removeScene(scene);
+            else
+                sceneManager.addScene(scene);
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
+            showDecals = !showDecals;
+        }
 
         camController.update();
-        updateBillBoardPosition(camera);
-
         sceneManager.update(Gdx.graphics.getDeltaTime());
 
         ScreenUtils.clear(Color.TEAL, true);
         sceneManager.render();
 
 
+        if(showDecals)
+            renderDecals(sceneManager.camera);
 
-
-
-
-        renderBillboards(sceneManager.camera);
 
 
         int fps = (int)(1f/Gdx.graphics.getDeltaTime());
         batch.begin();
-        font.draw(batch, "Instanced rendering demo", 20, 110);
+        font.draw(batch, "Instanced rendering demo (F1 toggle instances, F2 toggle decals)", 20, 110);
         font.draw(batch, "Instances: "+instanceCount, 20, 80);
         font.draw(batch, "Vertices/instance: "+countVertices(scene.modelInstance), 20, 50);
         font.draw(batch, "FPS: "+fps, 20, 20);
