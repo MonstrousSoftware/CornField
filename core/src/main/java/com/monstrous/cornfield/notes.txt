@@ -8,3 +8,32 @@ GLTF Embedded works on desktop but not on web.
 
 Note:
 - using a pallette may be preferable to giving parts of the mesh different fixed colours, because the latter options creates a mesh per material and a texture switch.
+
+On lwgl3 we need OpenGL3.1, 3.0 gives error depending on drivers...
+
+    FATAL ERROR in native method: Thread[main,5,main]: No context is current or a function that is not available in the current context was called. The JVM will abort execution.
+        at org.lwjgl.opengl.GL31C.nglDrawElementsInstanced(Native Method)
+
+Actually we need OpenGL 3.3 otherwise you get this:
+FATAL ERROR in native method: Thread[main,5,main]: No context is current or a function that is not available in the current context was called. The JVM will abort execution.
+	at org.lwjgl.opengl.GL33C.glVertexAttribDivisor(Native Method)
+	at org.lwjgl.opengl.GL33.glVertexAttribDivisor(GL33.java:614)
+	at com.badlogic.gdx.backends.lwjgl3.Lwjgl3GL30.glVertexAttribDivisor(Lwjgl3GL30.java:613)
+
+	(Note libgdx 1.12 supports up to OpenGL 3.2)
+
+(anything beyond 3.3 gives an error)
+[LWJGL] GLFW_INVALID_VALUE error
+	Description : Invalid OpenGL version 3.4
+
+Now runs but with error and bitmap font is corrupted (all black).
+
+LWJGL] GLFW_PLATFORM_ERROR error
+	Description : WGL: Failed to make context current: The requested transformation operation is not supported.
+	Stacktrace  :
+		org.lwjgl.glfw.GLFW.glfwMakeContextCurrent(GLFW.java:4894)
+		com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window.makeCurrent(Lwjgl3Window.java:431)
+		com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application.loop(Lwjgl3Application.java:188)
+		com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application.<init>(Lwjgl3Application.java:166)
+		com.monstrous.cornfield.lwjgl3.Lwjgl3Launcher.createApplication(Lwjgl3Launcher.java:15)
+		com.monstrous.cornfield.lwjgl3.Lwjgl3Launcher.main(Lwjgl3Launcher.java:11)
