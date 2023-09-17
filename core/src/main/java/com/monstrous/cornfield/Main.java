@@ -210,9 +210,10 @@ public class Main extends ApplicationAdapter {
 
         TextureRegion region = new TextureRegion(billboard);
 
-        float ht = 3.0f;
+        float baseHeight = 3.0f;
 
         for(Vector2 point: points ) {
+            float ht = baseHeight * MathUtils.random(0.8f, 1.2f);                       // vary heights
             Decal decal = Decal.newDecal(1, ht, region, true);
             decal.setPosition(point.x, ht/2f, point.y);
             decals.add(decal);
