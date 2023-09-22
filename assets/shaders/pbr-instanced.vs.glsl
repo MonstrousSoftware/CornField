@@ -322,9 +322,11 @@ void main() {
     #endif
 
     // MS
-    pos.xz = rotate(i_offset.w)*pos.xz;                 // rotate around Y axis
-    pos.y *= i_offset.y;                                // scale in Y direction
-    pos += vec4(i_offset.x, 0, i_offset.z, 0.0);      // offset in horizontal plane
+    //if(i_offset.y > 0) {
+        pos.xz = rotate(i_offset.w)*pos.xz;// rotate around Y axis
+        pos.y *= i_offset.y;// scale in Y direction
+        pos += vec4(i_offset.x, 0, i_offset.z, 0.0);// offset in horizontal plane
+    //}
     // end MS
 
     v_position = vec3(pos.xyz) / pos.w;

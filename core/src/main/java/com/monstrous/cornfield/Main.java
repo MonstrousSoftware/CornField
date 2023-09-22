@@ -53,7 +53,7 @@ public class Main extends ApplicationAdapter {
 
     private SceneManager sceneManager;
     private SceneAsset sceneAsset;
-    private Scene scene;
+    private Scene sceneCorn;
     private PerspectiveCamera camera;
     private Cubemap diffuseCubemap;
     private Cubemap environmentCubemap;
@@ -69,7 +69,7 @@ public class Main extends ApplicationAdapter {
     private Array<Decal>decals;
     private DecalBatch decalBatch;
     private boolean showInstances = true;
-    private boolean showDecals = true;
+    private boolean showDecals = false;
 
     @Override
     public void create() {
@@ -91,17 +91,19 @@ public class Main extends ApplicationAdapter {
         // setup camera
         camera = new PerspectiveCamera(50f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.near = 0.1f;
-        camera.far = 2000f;
+        camera.far = 800f;
         camera.position.set(-5, 2.5f, -5);
         camera.lookAt(10,1.5f,10);
         camera.update();
 
         // create scene manager
         // but use an amended vertex shader as default PBR vertex shader
-        PBRShaderConfig config = PBRShaderProvider.createDefaultConfig();
-        config.vertexShader = Gdx.files.internal("shaders/pbr-instanced.vs.glsl").readString();
-        //config.glslVersion = "#version 300 es\n#define GLSL3\n";
-        sceneManager = new SceneManager( new PBRShaderProvider(config), new PBRDepthShaderProvider(new DepthShader.Config()) );
+//        PBRShaderConfig config = PBRShaderProvider.createDefaultConfig();
+//        config.vertexShader = Gdx.files.internal("shaders/pbr-instanced.vs.glsl").readString();
+//        //config.glslVersion = "#version 300 es\n#define GLSL3\n";
+//        sceneManager = new SceneManager( new PBRShaderProvider(config), new PBRDepthShaderProvider(new DepthShader.Config()) );
+        sceneManager = new SceneManager( new MyShaderProvider(), new PBRDepthShaderProvider(new DepthShader.Config()) );
+        //sceneManager = new SceneManager();
         sceneManager.setCamera(camera);
 
         camController = new CameraInputController(camera);
@@ -140,25 +142,35 @@ public class Main extends ApplicationAdapter {
 
         sceneAsset = new GLTFLoader().load(Gdx.files.internal(GLTF_FILE));
 
+
 //        Scene sceneGround = new Scene(sceneAsset.scene, "groundplane");
 //        if(sceneGround.modelInstance.nodes.size == 0) {
 //            Gdx.app.error("GLTF load error: node not found", "groundplane");
 //            Gdx.app.exit();
 //        }
 //        sceneManager.addScene(sceneGround);
+//
+        Scene sceneReeds = new Scene(sceneAsset.scene, "reeds");
+        if(sceneReeds.modelInstance.nodes.size == 0) {
+            Gdx.app.error("GLTF load error: node not found", "reeds");
+            Gdx.app.exit();
+        }
+        sceneReeds.modelInstance.transform.translate(3, 0, 3);
+        sceneManager.addScene(sceneReeds);
 
 
         // extract the model to instantiate
-        scene = new Scene(sceneAsset.scene, NODE_NAME);
-        if(scene.modelInstance.nodes.size == 0) {
+        sceneCorn = new Scene(sceneAsset.scene, NODE_NAME);
+        if(sceneCorn.modelInstance.nodes.size == 0) {
             Gdx.app.error("GLTF load error: node not found", NODE_NAME);
             Gdx.app.exit();
         }
-        sceneManager.addScene(scene);
+
+        sceneManager.addScene(sceneCorn);
 
         // assumes the instance has one node,  and the meshPart covers the whole mesh
-        for(int i = 0 ; i < scene.modelInstance.nodes.first().parts.size; i++) {
-            Mesh mesh = scene.modelInstance.nodes.first().parts.get(i).meshPart.mesh;
+        for(int i = 0 ; i < sceneCorn.modelInstance.nodes.first().parts.size; i++) {
+            Mesh mesh = sceneCorn.modelInstance.nodes.first().parts.get(i).meshPart.mesh;
             setupInstancedMesh(mesh);
         }
 
@@ -240,9 +252,9 @@ public class Main extends ApplicationAdapter {
         if(Gdx.input.isKeyJustPressed(Input.Keys.F1)){
             showInstances = !showInstances;
             if(!showInstances)
-                sceneManager.removeScene(scene);
+                sceneManager.removeScene(sceneCorn);
             else
-                sceneManager.addScene(scene);
+                sceneManager.addScene(sceneCorn);
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
             showDecals = !showDecals;
@@ -264,7 +276,7 @@ public class Main extends ApplicationAdapter {
         batch.begin();
         font.draw(batch, "Instanced rendering demo (F1 toggle instances, F2 toggle decals)", 20, 110);
         font.draw(batch, "Instances: "+instanceCount, 20, 80);
-        font.draw(batch, "Vertices/instance: "+countVertices(scene.modelInstance), 20, 50);
+        font.draw(batch, "Vertices/instance: "+countVertices(sceneCorn.modelInstance), 20, 50);
         font.draw(batch, "FPS: "+fps, 20, 20);
 
         //batch.draw(billboard, 100,100);
