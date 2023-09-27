@@ -4,7 +4,8 @@ A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://git
 
 A demonstrator of instancing of a gltf model in combination with the PBR shader of gdx-gltf.
 Requires GL3.
-![screenshot](https://github.com/MonstrousSoftware/CornField/assets/49096535/519b91aa-8d01-4252-8cc3-08caddac04c2)
+
+![screenshot](https://github.com/MonstrousSoftware/CornField/assets/49096535/2910cd9d-6796-43ae-8e5e-0d5665e981f1)
 
 An alternative is also implemented using billboards.  Can you tell which field is which?
 The billboard technique could be useful as a fall-back option if the platform performs poorly. 
