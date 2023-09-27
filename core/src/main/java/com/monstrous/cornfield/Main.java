@@ -45,14 +45,6 @@ import java.nio.FloatBuffer;
 
 public class Main extends ApplicationAdapter {
 
-    public static class TestIntAttribute extends IntAttribute {
-        public final static String TestAlias = "testInt";
-        public final static long testInt = register(TestAlias);    // register new attribute type and get a long bit mask for it
-
-        public TestIntAttribute (long type, int value) {
-            super(type, value);
-        }
-    }
 
     public static String GLTF_FILE = "models/corn.gltf";
     public static String NODE_NAME = "cornstalk";                   // "cornstalk"  "reeds"
@@ -184,10 +176,14 @@ public class Main extends ApplicationAdapter {
             setupInstancedMesh(mesh);
         }
 
-        // force a call of shader provider by making canRender() fail
-        IntAttribute attr = new TestIntAttribute(TestShader.TestIntAttribute.testInt, 1);
-        sceneCorn.modelInstance.materials.get(0).set(attr);
 
+        Scene sceneReeds2 = new Scene(sceneAsset.scene, "reeds");
+        if(sceneReeds.modelInstance.nodes.size == 0) {
+            Gdx.app.error("GLTF load error: node not found", "reeds");
+            Gdx.app.exit();
+        }
+        sceneReeds2.modelInstance.transform.translate(1, 0, 1);
+        sceneManager.addScene(sceneReeds2);
 
         decals = new Array<>();
         decalBatch = new DecalBatch(new CameraGroupStrategy(camera));
@@ -277,6 +273,7 @@ public class Main extends ApplicationAdapter {
         sceneManager.update(Gdx.graphics.getDeltaTime());
 
         ScreenUtils.clear(Color.TEAL, true);
+        //Gdx.app.log("render frame", "");
         sceneManager.render();
 
         if(showDecals)
