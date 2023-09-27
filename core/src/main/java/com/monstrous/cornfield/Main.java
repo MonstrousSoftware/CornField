@@ -180,10 +180,10 @@ public class Main extends ApplicationAdapter {
         //sceneManager.addScene(sceneCorn);
 
         // assumes the instance has one node,  and the meshPart covers the whole mesh
-//        for(int i = 0 ; i < sceneCorn.modelInstance.nodes.first().parts.size; i++) {
-//            Mesh mesh = sceneCorn.modelInstance.nodes.first().parts.get(i).meshPart.mesh;
-//            setupInstancedMesh(mesh);
-//        }
+        for(int i = 0 ; i < sceneCorn.modelInstance.nodes.first().parts.size; i++) {
+            Mesh mesh = sceneCorn.modelInstance.nodes.first().parts.get(i).meshPart.mesh;
+            setupInstancedMesh(mesh);
+        }
 
 //        PBRInstancedShader.setup();
 //        Renderable renderable = new Renderable();
@@ -194,9 +194,8 @@ public class Main extends ApplicationAdapter {
         testShader = new TestShader();
         testShader.init();
 
-        ColorAttribute attr = new TestShader.TestColorAttribute(TestShader.TestColorAttribute.DiffuseU, Color.BLUE);
+        IntAttribute attr = new TestShader.TestIntAttribute(TestShader.TestIntAttribute.testInt, 1);
         sceneCorn.modelInstance.materials.get(0).set(attr);
-
 
 
         decals = new Array<>();
@@ -229,10 +228,9 @@ public class Main extends ApplicationAdapter {
         // fill instance data buffer
         for(Vector2 point: points) {
                 float angle = MathUtils.random(0.0f, (float)Math.PI*2.0f);
-                float fy = MathUtils.random(-0.6f, 0.0f);        // vary height from ground
-                float scaley = MathUtils.random(0.8f, 1.2f);        // vary scale in up direction
+                float scaleY = MathUtils.random(0.8f, 1.2f);        // vary scale in up direction
 
-                offsets.put(new float[] {point.x, scaley, point.y, angle });     // x, y scale, z, angle
+                offsets.put(new float[] {point.x, scaleY, point.y, angle });     // x, y-scale, z, angle
         }
 
         ((Buffer)offsets).position(0);
@@ -288,8 +286,9 @@ public class Main extends ApplicationAdapter {
         sceneManager.update(Gdx.graphics.getDeltaTime());
 
         ScreenUtils.clear(Color.TEAL, true);
-        sceneManager.render();
+       // sceneManager.render();
 
+        sceneManager.camera.update();
         modelBatch.begin(sceneManager.camera);
         modelBatch.render(sceneCorn.modelInstance, testShader);         // model instance with special shader applied
         modelBatch.render(sceneReeds.modelInstance, testShader);        // regular model

@@ -7,9 +7,11 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
 public class TestShader implements Shader {
@@ -20,20 +22,16 @@ public class TestShader implements Shader {
     int u_worldTrans;
     int u_color;
 
-    public static class TestColorAttribute extends ColorAttribute {
-        public final static String TestAlias = "diffuseUColor";
-        public final static long DiffuseU = register(TestAlias);    // register new attribute type and get a long bit mask for it
+    public static class TestIntAttribute extends IntAttribute {
+        public final static String TestAlias = "testInt";
+        public final static long testInt = register(TestAlias);    // register new attribute type and get a long bit mask for it
 
-        static {
-            Mask = Mask | DiffuseU ;
-        }
+//        static {
+//            Mask = Mask | DiffuseU ;
+//        }
 
-        public TestColorAttribute (long type, float r, float g, float b, float a) {
-            super(type, r, g, b, a);
-        }
-
-        public TestColorAttribute (long type, Color color) {
-            super(type, color.r, color.g, color.b, color.a);
+        public TestIntAttribute (long type, int value) {
+            super(type, value);
         }
 
     }
@@ -41,8 +39,8 @@ public class TestShader implements Shader {
 
     @Override
     public void init() {
-        String vert = Gdx.files.internal("shaders/test.vertex.glsl").readString();
-        String frag = Gdx.files.internal("shaders/test.fragment.glsl").readString();
+        String vert = Gdx.files.internal("shaders/instanced.vertex.glsl").readString();
+        String frag = Gdx.files.internal("shaders/instanced.fragment.glsl").readString();
         program = new ShaderProgram(vert, frag);
         if (!program.isCompiled())
             throw new GdxRuntimeException(program.getLog());
@@ -57,8 +55,8 @@ public class TestShader implements Shader {
         this.context = context;
         program.bind();
         program.setUniformMatrix(u_projTrans, camera.combined);
-//        context.setDepthTest( GL20.GL_LEQUAL);
-//        context.setCullFace(GL20.GL_BACK);
+        context.setDepthTest( GL20.GL_LEQUAL);
+        context.setCullFace(GL20.GL_BACK);
 
 
 
@@ -67,8 +65,9 @@ public class TestShader implements Shader {
     @Override
     public void render (Renderable renderable) {
         program.setUniformMatrix(u_worldTrans, renderable.worldTransform);
-        program.setUniformf(u_color, MathUtils.random(),  MathUtils.random(),  MathUtils.random());
-        Color color = ((ColorAttribute)renderable.material.get(TestColorAttribute.DiffuseU)).color;
+
+
+        Color color = Color.BLUE;
         program.setUniformf(u_color, color.r, color.g, color.b);
 
         renderable.meshPart.render(program);
@@ -87,7 +86,7 @@ public class TestShader implements Shader {
 
     @Override
     public boolean canRender(Renderable renderable) {
-        return  renderable.material.has(TestColorAttribute.DiffuseU);
+        return  renderable.material.has(TestIntAttribute.testInt);
     }
 
 
