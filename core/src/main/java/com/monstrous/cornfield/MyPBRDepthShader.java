@@ -1,13 +1,13 @@
 package com.monstrous.cornfield;
 
 import com.badlogic.gdx.graphics.g3d.Renderable;
-import net.mgsx.gltf.scene3d.shaders.PBRShader;
+import net.mgsx.gltf.scene3d.shaders.PBRDepthShader;
 
-public class MyPBRShader extends PBRShader {
+public class MyPBRDepthShader extends PBRDepthShader {
 
     private boolean isInstancedShader;
 
-    public MyPBRShader(Renderable renderable, Config config, String prefix) {
+    public MyPBRDepthShader(Renderable renderable, Config config, String prefix) {
         super(renderable, config, prefix);
         isInstancedShader = renderable.meshPart.mesh.isInstanced();
     }

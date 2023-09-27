@@ -5,12 +5,7 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.g3d.Attribute;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.Renderable;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
@@ -34,7 +29,6 @@ import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 import net.mgsx.gltf.scene3d.scene.SceneManager;
 import net.mgsx.gltf.scene3d.scene.SceneSkybox;
-import net.mgsx.gltf.scene3d.shaders.PBRDepthShaderProvider;
 import net.mgsx.gltf.scene3d.utils.IBLBuilder;
 
 
@@ -52,7 +46,7 @@ public class Main extends ApplicationAdapter {
     private static final float SEPARATION_DISTANCE = 1.0f;          // min distance between instances
     private static final float AREA_LENGTH = 100.0f;                // size of the (square) field
 
-    private static final int SHADOW_MAP_SIZE = 2048;
+    private static final int SHADOW_MAP_SIZE = 4096;
 
 
     private SceneManager sceneManager;
@@ -85,13 +79,10 @@ public class Main extends ApplicationAdapter {
             throw new GdxRuntimeException("GLES 3.0 profile required for this programme.");
         }
         font = new BitmapFont();
-        Gdx.app.log("font own texture", ""+font.ownsTexture());
         font.setOwnsTexture(false);
-        Gdx.app.log("font own texture", ""+font.ownsTexture());
         batch = new SpriteBatch();
 
         billboard = new Texture(Gdx.files.internal("images/cornstalk-billboard.png") );
-
 
 
         // setup camera
@@ -103,8 +94,8 @@ public class Main extends ApplicationAdapter {
         camera.update();
 
         // create scene manager
-        // but use our own shader provider
-        sceneManager = new SceneManager( new MyPBRShaderProvider(), new PBRDepthShaderProvider(new DepthShader.Config()) );
+        // but use our own shader providers
+        sceneManager = new SceneManager( new MyPBRShaderProvider(), new MyPBRDepthShaderProvider(new DepthShader.Config()) );
         sceneManager.setCamera(camera);
 
 
@@ -167,7 +158,6 @@ public class Main extends ApplicationAdapter {
             Gdx.app.error("GLTF load error: node not found", NODE_NAME);
             Gdx.app.exit();
         }
-
         sceneManager.addScene(sceneCorn);
 
         // assumes the instance has one node,  and the meshPart covers the whole mesh
@@ -188,8 +178,6 @@ public class Main extends ApplicationAdapter {
         decals = new Array<>();
         decalBatch = new DecalBatch(new CameraGroupStrategy(camera));
         generateDecals();
-
-
     }
 
 
