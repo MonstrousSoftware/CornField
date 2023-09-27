@@ -14,9 +14,9 @@ Or to add extra depth in the far distance.
 
 Note: GLTF models need to be exported from Blender using GLTF Separate, not GLTF Embedded. 
 
-To do: combine instanced rendering of some assets with regular rendering of other assets, applying the relevant shader as needed.
+Update: the derived PBR shader provider allows to combine instanced rendering of some assets with normal rendering of other assets, applying the relevant shader as needed.
+The PBR depth shader is also subclassed to allow shadows from the corn stalks.
 
-To do: billboards are overlaid on the scene and ignore depth buffer, so thay can be visible when they should be obscured. 
 
 
 
