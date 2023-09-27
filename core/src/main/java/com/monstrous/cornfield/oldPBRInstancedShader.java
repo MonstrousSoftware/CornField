@@ -1,15 +1,9 @@
 package com.monstrous.cornfield;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.Renderable;
-import com.badlogic.gdx.graphics.g3d.Shader;
-import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import net.mgsx.gltf.scene3d.shaders.PBRShader;
-import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
-import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
 
-public class PBRInstancedShader extends PBRShader {
+public class oldPBRInstancedShader extends PBRShader {
 
 ////    static PBRShaderConfig instancedConfig;
 //    static PBRShaderProvider provider;
@@ -61,7 +55,7 @@ public class PBRInstancedShader extends PBRShader {
 //
 //
 //
-    public PBRInstancedShader(Renderable renderable, Config config, String prefix) {
+    public oldPBRInstancedShader(Renderable renderable, Config config, String prefix) {
         super(renderable, config , prefix);
     }
 //

@@ -232,8 +232,8 @@ varying vec3 v_csmUVs[numCSM];
 #endif //shadowMapFlag
 
 // MS
+#if defined(instanced)
 attribute vec4 i_offset;       // instanced data (X, scale Y, Z, rotation angle around Y)
-
 
 // MS
 mat2 rotate(float angle) {
@@ -242,6 +242,7 @@ mat2 rotate(float angle) {
     sin(angle), cos(angle)
     );
 }
+#endif // instanced
 
 void main() {
 
@@ -322,11 +323,11 @@ void main() {
     #endif
 
     // MS
-    //if(i_offset.y > 0) {
+    #if defined(instanced)
         pos.xz = rotate(i_offset.w)*pos.xz;// rotate around Y axis
         pos.y *= i_offset.y;// scale in Y direction
         pos += vec4(i_offset.x, 0, i_offset.z, 0.0);// offset in horizontal plane
-    //}
+    #endif
     // end MS
 
     v_position = vec3(pos.xyz) / pos.w;

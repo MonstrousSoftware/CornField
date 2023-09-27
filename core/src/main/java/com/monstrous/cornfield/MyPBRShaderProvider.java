@@ -3,6 +3,8 @@ package com.monstrous.cornfield;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.Shader;
+import net.mgsx.gltf.scene3d.shaders.PBRShader;
+import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
 
 public class MyPBRShaderProvider extends PBRShaderProvider {
@@ -10,12 +12,21 @@ public class MyPBRShaderProvider extends PBRShaderProvider {
         super(PBRShaderProvider.createDefaultConfig());
     }
 
-//    @Override
-//    protected Shader createShader(Renderable renderable) {
-//        Gdx.app.log("createShader", "");
-//        if( renderable.meshPart.mesh.isInstanced())
-//            return new PBRInstancedShader(renderable,PBRShaderProvider.createDefaultConfig(), "" );
-//        else
-//            return super.createShader(renderable);
-//    }
+
+    /**
+     * override this method in order to provide your own PBRShader subclass.
+     * @param renderable
+     * @param config
+     * @param prefix
+     */
+    @Override
+    protected PBRShader createShader(Renderable renderable, PBRShaderConfig config, String prefix){
+        Gdx.app.log("createShader", "");
+        if( renderable.meshPart.mesh.isInstanced()) {
+            prefix += "#define instanced\n";
+        }
+        config.vertexShader = Gdx.files.internal("shaders/pbr-instanced.vs.glsl").readString();
+        return new MyPBRShader(renderable, config, prefix);
+    }
+
 }

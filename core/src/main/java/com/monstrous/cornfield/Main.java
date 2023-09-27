@@ -111,8 +111,8 @@ public class Main extends ApplicationAdapter {
 //        config.vertexShader = Gdx.files.internal("shaders/pbr-instanced.vs.glsl").readString();
 //        //config.glslVersion = "#version 300 es\n#define GLSL3\n";
 //        sceneManager = new SceneManager( new PBRShaderProvider(config), new PBRDepthShaderProvider(new DepthShader.Config()) );
-        //sceneManager = new SceneManager( new MyPBRShaderProvider(), new PBRDepthShaderProvider(new DepthShader.Config()) );
-        sceneManager = new SceneManager();
+        sceneManager = new SceneManager( new MyPBRShaderProvider(), new PBRDepthShaderProvider(new DepthShader.Config()) );
+      //  sceneManager = new SceneManager();
         sceneManager.setCamera(camera);
 
 
@@ -167,7 +167,7 @@ public class Main extends ApplicationAdapter {
             Gdx.app.exit();
         }
         sceneReeds.modelInstance.transform.translate(3, 0, 3);
-//        sceneManager.addScene(sceneReeds);
+        sceneManager.addScene(sceneReeds);
 
 
         // extract the model to instantiate
@@ -177,7 +177,7 @@ public class Main extends ApplicationAdapter {
             Gdx.app.exit();
         }
 
-        //sceneManager.addScene(sceneCorn);
+        sceneManager.addScene(sceneCorn);
 
         // assumes the instance has one node,  and the meshPart covers the whole mesh
         for(int i = 0 ; i < sceneCorn.modelInstance.nodes.first().parts.size; i++) {
@@ -286,13 +286,13 @@ public class Main extends ApplicationAdapter {
         sceneManager.update(Gdx.graphics.getDeltaTime());
 
         ScreenUtils.clear(Color.TEAL, true);
-       // sceneManager.render();
+        sceneManager.render();
 
-        sceneManager.camera.update();
-        modelBatch.begin(sceneManager.camera);
-        modelBatch.render(sceneCorn.modelInstance, testShader);         // model instance with special shader applied
-        modelBatch.render(sceneReeds.modelInstance, testShader);        // regular model
-        modelBatch.end();
+
+//        modelBatch.begin(sceneManager.camera);
+//        modelBatch.render(sceneCorn.modelInstance, testShader);         // model instance with special shader applied
+//        modelBatch.render(sceneReeds.modelInstance, testShader);        // regular model
+//        modelBatch.end();
 
 
         if(showDecals)
