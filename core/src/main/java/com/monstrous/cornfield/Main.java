@@ -5,7 +5,12 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g3d.Attribute;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.Renderable;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
@@ -30,8 +35,6 @@ import net.mgsx.gltf.scene3d.scene.SceneAsset;
 import net.mgsx.gltf.scene3d.scene.SceneManager;
 import net.mgsx.gltf.scene3d.scene.SceneSkybox;
 import net.mgsx.gltf.scene3d.shaders.PBRDepthShaderProvider;
-import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
-import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
 import net.mgsx.gltf.scene3d.utils.IBLBuilder;
 
 
@@ -54,6 +57,7 @@ public class Main extends ApplicationAdapter {
     private SceneManager sceneManager;
     private SceneAsset sceneAsset;
     private Scene sceneCorn;
+    private Scene sceneReeds;
     private PerspectiveCamera camera;
     private Cubemap diffuseCubemap;
     private Cubemap environmentCubemap;
@@ -70,6 +74,9 @@ public class Main extends ApplicationAdapter {
     private DecalBatch decalBatch;
     private boolean showInstances = true;
     private boolean showDecals = false;
+    private ModelBatch modelBatch;
+//    private PBRInstancedShader instancedShader;
+    private TestShader testShader;
 
     @Override
     public void create() {
@@ -87,6 +94,8 @@ public class Main extends ApplicationAdapter {
 
         billboard = new Texture(Gdx.files.internal("images/cornstalk-billboard.png") );
 
+        modelBatch = new ModelBatch();
+
 
         // setup camera
         camera = new PerspectiveCamera(50f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -102,9 +111,11 @@ public class Main extends ApplicationAdapter {
 //        config.vertexShader = Gdx.files.internal("shaders/pbr-instanced.vs.glsl").readString();
 //        //config.glslVersion = "#version 300 es\n#define GLSL3\n";
 //        sceneManager = new SceneManager( new PBRShaderProvider(config), new PBRDepthShaderProvider(new DepthShader.Config()) );
-        sceneManager = new SceneManager( new MyShaderProvider(), new PBRDepthShaderProvider(new DepthShader.Config()) );
-        //sceneManager = new SceneManager();
+        //sceneManager = new SceneManager( new MyPBRShaderProvider(), new PBRDepthShaderProvider(new DepthShader.Config()) );
+        sceneManager = new SceneManager();
         sceneManager.setCamera(camera);
+
+
 
         camController = new CameraInputController(camera);
         Gdx.input.setInputProcessor(camController);
@@ -150,13 +161,13 @@ public class Main extends ApplicationAdapter {
 //        }
 //        sceneManager.addScene(sceneGround);
 //
-        Scene sceneReeds = new Scene(sceneAsset.scene, "reeds");
+        sceneReeds = new Scene(sceneAsset.scene, "reeds");
         if(sceneReeds.modelInstance.nodes.size == 0) {
             Gdx.app.error("GLTF load error: node not found", "reeds");
             Gdx.app.exit();
         }
         sceneReeds.modelInstance.transform.translate(3, 0, 3);
-        sceneManager.addScene(sceneReeds);
+//        sceneManager.addScene(sceneReeds);
 
 
         // extract the model to instantiate
@@ -166,13 +177,26 @@ public class Main extends ApplicationAdapter {
             Gdx.app.exit();
         }
 
-        sceneManager.addScene(sceneCorn);
+        //sceneManager.addScene(sceneCorn);
 
         // assumes the instance has one node,  and the meshPart covers the whole mesh
-        for(int i = 0 ; i < sceneCorn.modelInstance.nodes.first().parts.size; i++) {
-            Mesh mesh = sceneCorn.modelInstance.nodes.first().parts.get(i).meshPart.mesh;
-            setupInstancedMesh(mesh);
-        }
+//        for(int i = 0 ; i < sceneCorn.modelInstance.nodes.first().parts.size; i++) {
+//            Mesh mesh = sceneCorn.modelInstance.nodes.first().parts.get(i).meshPart.mesh;
+//            setupInstancedMesh(mesh);
+//        }
+
+//        PBRInstancedShader.setup();
+//        Renderable renderable = new Renderable();
+//        sceneCorn.modelInstance.getRenderable(renderable);
+//        instancedShader = new PBRInstancedShader(renderable);
+//        instancedShader.init();
+
+        testShader = new TestShader();
+        testShader.init();
+
+        ColorAttribute attr = new TestShader.TestColorAttribute(TestShader.TestColorAttribute.DiffuseU, Color.BLUE);
+        sceneCorn.modelInstance.materials.get(0).set(attr);
+
 
 
         decals = new Array<>();
@@ -249,13 +273,13 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void render() {
-        if(Gdx.input.isKeyJustPressed(Input.Keys.F1)){
-            showInstances = !showInstances;
-            if(!showInstances)
-                sceneManager.removeScene(sceneCorn);
-            else
-                sceneManager.addScene(sceneCorn);
-        }
+//        if(Gdx.input.isKeyJustPressed(Input.Keys.F1)){
+//            showInstances = !showInstances;
+//            if(!showInstances)
+//                sceneManager.removeScene(sceneCorn);
+//            else
+//                sceneManager.addScene(sceneCorn);
+//        }
         if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
             showDecals = !showDecals;
         }
@@ -265,6 +289,11 @@ public class Main extends ApplicationAdapter {
 
         ScreenUtils.clear(Color.TEAL, true);
         sceneManager.render();
+
+        modelBatch.begin(sceneManager.camera);
+        modelBatch.render(sceneCorn.modelInstance, testShader);         // model instance with special shader applied
+        modelBatch.render(sceneReeds.modelInstance, testShader);        // regular model
+        modelBatch.end();
 
 
         if(showDecals)

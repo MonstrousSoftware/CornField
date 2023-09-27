@@ -57,3 +57,9 @@ LWJGL] GLFW_PLATFORM_ERROR error
 		com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application.<init>(Lwjgl3Application.java:166)
 		com.monstrous.cornfield.lwjgl3.Lwjgl3Launcher.createApplication(Lwjgl3Launcher.java:15)
 		com.monstrous.cornfield.lwjgl3.Lwjgl3Launcher.main(Lwjgl3Launcher.java:11)
+
+
+
+
+On shader selection per model instance:
+https://stackoverflow.com/questions/28590802/libgdx-assigning-a-specific-shader-to-a-modelinstance
