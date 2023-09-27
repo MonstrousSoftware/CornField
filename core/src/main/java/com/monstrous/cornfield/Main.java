@@ -45,6 +45,15 @@ import java.nio.FloatBuffer;
 
 public class Main extends ApplicationAdapter {
 
+    public static class TestIntAttribute extends IntAttribute {
+        public final static String TestAlias = "testInt";
+        public final static long testInt = register(TestAlias);    // register new attribute type and get a long bit mask for it
+
+        public TestIntAttribute (long type, int value) {
+            super(type, value);
+        }
+    }
+
     public static String GLTF_FILE = "models/corn.gltf";
     public static String NODE_NAME = "cornstalk";                   // "cornstalk"  "reeds"
 
@@ -74,9 +83,6 @@ public class Main extends ApplicationAdapter {
     private DecalBatch decalBatch;
     private boolean showInstances = true;
     private boolean showDecals = false;
-    private ModelBatch modelBatch;
-//    private PBRInstancedShader instancedShader;
-    private TestShader testShader;
 
     @Override
     public void create() {
@@ -94,7 +100,6 @@ public class Main extends ApplicationAdapter {
 
         billboard = new Texture(Gdx.files.internal("images/cornstalk-billboard.png") );
 
-        modelBatch = new ModelBatch();
 
 
         // setup camera
@@ -106,15 +111,9 @@ public class Main extends ApplicationAdapter {
         camera.update();
 
         // create scene manager
-        // but use an amended vertex shader as default PBR vertex shader
-//        PBRShaderConfig config = PBRShaderProvider.createDefaultConfig();
-//        config.vertexShader = Gdx.files.internal("shaders/pbr-instanced.vs.glsl").readString();
-//        //config.glslVersion = "#version 300 es\n#define GLSL3\n";
-//        sceneManager = new SceneManager( new PBRShaderProvider(config), new PBRDepthShaderProvider(new DepthShader.Config()) );
+        // but use our own shader provider
         sceneManager = new SceneManager( new MyPBRShaderProvider(), new PBRDepthShaderProvider(new DepthShader.Config()) );
-      //  sceneManager = new SceneManager();
         sceneManager.setCamera(camera);
-
 
 
         camController = new CameraInputController(camera);
@@ -154,19 +153,19 @@ public class Main extends ApplicationAdapter {
         sceneAsset = new GLTFLoader().load(Gdx.files.internal(GLTF_FILE));
 
 
-//        Scene sceneGround = new Scene(sceneAsset.scene, "groundplane");
-//        if(sceneGround.modelInstance.nodes.size == 0) {
-//            Gdx.app.error("GLTF load error: node not found", "groundplane");
-//            Gdx.app.exit();
-//        }
-//        sceneManager.addScene(sceneGround);
-//
+        Scene sceneGround = new Scene(sceneAsset.scene, "groundplane");
+        if(sceneGround.modelInstance.nodes.size == 0) {
+            Gdx.app.error("GLTF load error: node not found", "groundplane");
+            Gdx.app.exit();
+        }
+        sceneManager.addScene(sceneGround);
+
         sceneReeds = new Scene(sceneAsset.scene, "reeds");
         if(sceneReeds.modelInstance.nodes.size == 0) {
             Gdx.app.error("GLTF load error: node not found", "reeds");
             Gdx.app.exit();
         }
-        sceneReeds.modelInstance.transform.translate(3, 0, 3);
+        sceneReeds.modelInstance.transform.translate(0, 0, 0);
         sceneManager.addScene(sceneReeds);
 
 
@@ -185,16 +184,8 @@ public class Main extends ApplicationAdapter {
             setupInstancedMesh(mesh);
         }
 
-//        PBRInstancedShader.setup();
-//        Renderable renderable = new Renderable();
-//        sceneCorn.modelInstance.getRenderable(renderable);
-//        instancedShader = new PBRInstancedShader(renderable);
-//        instancedShader.init();
-
-        testShader = new TestShader();
-        testShader.init();
-
-        IntAttribute attr = new TestShader.TestIntAttribute(TestShader.TestIntAttribute.testInt, 1);
+        // force a call of shader provider by making canRender() fail
+        IntAttribute attr = new TestIntAttribute(TestShader.TestIntAttribute.testInt, 1);
         sceneCorn.modelInstance.materials.get(0).set(attr);
 
 
@@ -227,10 +218,10 @@ public class Main extends ApplicationAdapter {
 
         // fill instance data buffer
         for(Vector2 point: points) {
-                float angle = MathUtils.random(0.0f, (float)Math.PI*2.0f);
-                float scaleY = MathUtils.random(0.8f, 1.2f);        // vary scale in up direction
+                float angle = MathUtils.random(0.0f, (float)Math.PI*2.0f);      // random rotation around Y (up) axis
+                float scaleY = MathUtils.random(0.8f, 1.2f);                    // vary scale in up direction +/- 20%
 
-                offsets.put(new float[] {point.x, scaleY, point.y, angle });     // x, y-scale, z, angle
+                offsets.put(new float[] {point.x, scaleY, point.y, angle });     // x, y-scale, z, y-rotation
         }
 
         ((Buffer)offsets).position(0);
@@ -271,14 +262,14 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void render() {
-//        if(Gdx.input.isKeyJustPressed(Input.Keys.F1)){
-//            showInstances = !showInstances;
-//            if(!showInstances)
-//                sceneManager.removeScene(sceneCorn);
-//            else
-//                sceneManager.addScene(sceneCorn);
-//        }
-        if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
+        if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)){
+            showInstances = !showInstances;
+            if(!showInstances)
+                sceneManager.removeScene(sceneCorn);
+            else
+                sceneManager.addScene(sceneCorn);
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)){
             showDecals = !showDecals;
         }
 
@@ -288,13 +279,6 @@ public class Main extends ApplicationAdapter {
         ScreenUtils.clear(Color.TEAL, true);
         sceneManager.render();
 
-
-//        modelBatch.begin(sceneManager.camera);
-//        modelBatch.render(sceneCorn.modelInstance, testShader);         // model instance with special shader applied
-//        modelBatch.render(sceneReeds.modelInstance, testShader);        // regular model
-//        modelBatch.end();
-
-
         if(showDecals)
             renderDecals(sceneManager.camera);
 
@@ -302,12 +286,11 @@ public class Main extends ApplicationAdapter {
 
         int fps = (int)(1f/Gdx.graphics.getDeltaTime());
         batch.begin();
-        font.draw(batch, "Instanced rendering demo (F1 toggle instances, F2 toggle decals)", 20, 110);
+        font.draw(batch, "Instanced rendering demo (1: toggle instances, 2: toggle decals)", 20, 110);
         font.draw(batch, "Instances: "+instanceCount, 20, 80);
         font.draw(batch, "Vertices/instance: "+countVertices(sceneCorn.modelInstance), 20, 50);
         font.draw(batch, "FPS: "+fps, 20, 20);
 
-        //batch.draw(billboard, 100,100);
         batch.end();
     }
 

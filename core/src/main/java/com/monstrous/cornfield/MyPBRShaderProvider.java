@@ -21,8 +21,9 @@ public class MyPBRShaderProvider extends PBRShaderProvider {
      */
     @Override
     protected PBRShader createShader(Renderable renderable, PBRShaderConfig config, String prefix){
-        Gdx.app.log("createShader", "");
+        Gdx.app.log("createShader", renderable.meshPart.id);
         if( renderable.meshPart.mesh.isInstanced()) {
+            Gdx.app.log("renderable is instanced:", renderable.meshPart.id);
             prefix += "#define instanced\n";
         }
         config.vertexShader = Gdx.files.internal("shaders/pbr-instanced.vs.glsl").readString();

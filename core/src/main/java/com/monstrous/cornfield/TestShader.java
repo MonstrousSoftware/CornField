@@ -26,14 +26,9 @@ public class TestShader implements Shader {
         public final static String TestAlias = "testInt";
         public final static long testInt = register(TestAlias);    // register new attribute type and get a long bit mask for it
 
-//        static {
-//            Mask = Mask | DiffuseU ;
-//        }
-
         public TestIntAttribute (long type, int value) {
             super(type, value);
         }
-
     }
 
 
