@@ -323,10 +323,13 @@ void main() {
     #endif
 
     // MS
+    vec3 normalVec = a_normal;
     #if defined(instanced)
         pos.xz = rotate(i_offset.w)*pos.xz;// rotate around Y axis
         pos.y *= i_offset.y;// scale in Y direction
         pos += vec4(i_offset.x, 0, i_offset.z, 0.0);// offset in horizontal plane
+
+        normalVec.xz = rotate(i_offset.w)*normalVec.xz;// rotate around Y axis
     #endif
     // end MS
 
@@ -337,17 +340,17 @@ void main() {
     vec4 spos = u_shadowMapProjViewTrans * pos;
     v_shadowMapUv.xyz = (spos.xyz / spos.w) * 0.5 + 0.5;
     v_shadowMapUv.z = min(v_shadowMapUv.z, 0.998);
-    #ifdef numCSM
-    for(int i=0 ; i<numCSM ; i++){
-        vec4 csmPos = u_csmTransforms[i] * pos;
-        v_csmUVs[i].xyz = (csmPos.xyz / csmPos.w) * 0.5 + 0.5;
-    }
+        #ifdef numCSM
+        for(int i=0 ; i<numCSM ; i++){
+            vec4 csmPos = u_csmTransforms[i] * pos;
+            v_csmUVs[i].xyz = (csmPos.xyz / csmPos.w) * 0.5 + 0.5;
+        }
         #endif
-        #endif //shadowMapFlag
+    #endif //shadowMapFlag
 
         #if defined(normalFlag)
 
-    vec3 morph_nor = a_normal;
+    vec3 morph_nor = normalVec;    // MM was a_normal
     #ifdef morphTargetsFlag
     #ifdef normal0Flag
     morph_nor += a_normal0 * u_morphTargets1.x;

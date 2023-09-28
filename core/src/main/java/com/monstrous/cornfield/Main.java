@@ -43,8 +43,9 @@ public class Main extends ApplicationAdapter {
     public static String GLTF_FILE = "models/corn.gltf";
     public static String NODE_NAME = "cornstalk";                   // "cornstalk"  "reeds"
 
-    private static final float SEPARATION_DISTANCE = 1.0f;          // min distance between instances
-    private static final float AREA_LENGTH = 100.0f;                // size of the (square) field
+    private static final float SEPARATION_DISTANCE = 1f;          // min distance between instances
+    private static final float AREA_LENGTH = 150.0f;                // size of the (square) field
+    private static final boolean AUTO_ROTATE = false;
 
     private static final int SHADOW_MAP_SIZE = 4096;
 
@@ -104,15 +105,19 @@ public class Main extends ApplicationAdapter {
 
         // gdx-gltf set up
         //
-        sceneManager.environment.set(new PBRFloatAttribute(PBRFloatAttribute.ShadowBias, 0.001f));
+        sceneManager.environment.set(new PBRFloatAttribute(PBRFloatAttribute.ShadowBias, 1f/512f));
+
+
 
         // setup light
-        light = new DirectionalShadowLight(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE).setViewport(100, 100, 5, 400);
+        light = new DirectionalShadowLight(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE).setViewport(100, 100, 5, 900);
 
-        light.direction.set(1, -3, 1).nor();
+        light.direction.set(1, -3, -1).nor();
         light.color.set(Color.WHITE);
-        light.intensity = 0.51f;
+        light.intensity = 0.81f;
         sceneManager.environment.add(light);
+
+
 
         // setup quick IBL (image based lighting)
         IBLBuilder iblBuilder = IBLBuilder.createOutdoor(light);
@@ -124,7 +129,7 @@ public class Main extends ApplicationAdapter {
         // This texture is provided by the library, no need to have it in your assets.
         brdfLUT = new Texture(Gdx.files.classpath("net/mgsx/gltf/shaders/brdfLUT.png"));
 
-        sceneManager.setAmbientLight(0.3f);
+        sceneManager.setAmbientLight(0.5f);
         sceneManager.environment.set(new PBRTextureAttribute(PBRTextureAttribute.BRDFLUTTexture, brdfLUT));
         sceneManager.environment.set(PBRCubemapAttribute.createSpecularEnv(specularCubemap));
         sceneManager.environment.set(PBRCubemapAttribute.createDiffuseEnv(diffuseCubemap));
@@ -256,6 +261,9 @@ public class Main extends ApplicationAdapter {
         if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)){
             showDecals = !showDecals;
         }
+
+        if(AUTO_ROTATE)
+            sceneCorn.modelInstance.transform.rotate(Vector3.Y, Gdx.graphics.getDeltaTime() * 45f);
 
         camController.update();
         sceneManager.update(Gdx.graphics.getDeltaTime());

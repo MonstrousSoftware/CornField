@@ -22,7 +22,7 @@ public class MyPBRDepthShaderProvider extends PBRDepthShaderProvider {
         if( renderable.meshPart.mesh.isInstanced()) {
             prefix += "#define instanced\n";
         }
-        config.vertexShader = Gdx.files.internal("shaders/pbr-instanced-depth.vs.glsl").readString();
+        config.vertexShader = Gdx.files.internal("shaders/pbr-instanced-depth-x.vs.glsl").readString();     // todo
         return new MyPBRDepthShader(renderable, config, prefix );
     }
 
